@@ -1,54 +1,37 @@
-
-if( process.argv.length < 3 ) {
-	console.log(
-		'Usage: \n' +
-		'node stream-server.js <secret> [<stream-port> <websocket-port>]'
-	);
-	process.exit();
-}
-
-var STREAM_SECRET = process.argv[2],
-	autoStartWebcamStream = process.argv[3] || false,
-	STREAM_PORT = process.argv[4] || 8082,
-	WEBSOCKET_PORT = process.argv[5] || 8084,
-	STREAM_MAGIC_BYTES = 'jsmp' // Must be 4 bytes
-
-var width = 320,
-	height = 240;
-
-// Websocket Server
-var socketServer = new (require('ws').Server)({port: WEBSOCKET_PORT});
-socketServer.on('connection', function(socket) {
-	// Send magic bytes and video size to the newly connected socket
-	// struct { char magic[4]; unsigned short width, height;}
-	var streamHeader = new Buffer(8);
-	streamHeader.write(STREAM_MAGIC_BYTES);
-	streamHeader.writeUInt16BE(width, 4);
-	streamHeader.writeUInt16BE(height, 6);
-	socket.send(streamHeader, {binary:true});
-
-	console.log( 'New WebSocket Connection ('+socketServer.clients.length+' total)' );
-
-	socket.on('close', function(code, message){
-		console.log( 'Disconnected WebSocket ('+socketServer.clients.length+' total)' );
-	});
+var io = require('socket.io').listen(8082, {log:false});
+io.sockets.on('connection', function (socket) 
+{
+    //console.log(socket);
+    console.log('websocket connection');
+    /*
+    socket.on('VIDEO_STREAM_DATA', function (req) 
+    {
+        console.log(req);
+        //socket.emit('VS', data);
+    });
+    */
 });
 
-socketServer.broadcast = function(data, opts) {
-	for( var i in this.clients ) {
-		if (this.clients[i].readyState == 1) {
-			this.clients[i].send(data, opts);
-		}
-		else {
-			console.log( 'Error: Client ('+i+') not connected.' );
-		}
-	}
-};
 
+/*
+var webmReceiver = require('socket.io').listen(8082, {log:true});
+io.sockets.on('connection', function(socket){
+   console.log(socket); 
+});
+console.log("Listening on localhost:8082");
+*/
 
-// HTTP Server to accept incomming MPEG Stream
+var STREAM_SECRET = "stream",
+    STREAM_PORT = 8084;
+
 var streamServer = require('http').createServer( function(request, response) {
     console.log(request);
+    request.on('data', function(data){
+        io.sockets.emit('VS', data);
+        //io.sockets.emit('VS', data);
+    });
+   
+    /*
 	var params = request.url.substr(1).split('/');
 	if( params[0] == STREAM_SECRET ) {
 		console.log(
@@ -56,7 +39,8 @@ var streamServer = require('http').createServer( function(request, response) {
 			':' + request.socket.remotePort + ' size: ' + width + 'x' + height
 		);
 		request.on('data', function(data){
-			socketServer.broadcast(data, {binary:true});
+            console.log(data);
+			//socketServer.broadcast(data, {binary:true});
 		});
 	}
 	else {
@@ -66,7 +50,7 @@ var streamServer = require('http').createServer( function(request, response) {
 		);
 		response.end();
 	}
+    */
 }).listen(STREAM_PORT);
 
-console.log('Listening for MPEG Stream on http://127.0.0.1:'+STREAM_PORT+'/<secret>/<width>/<height>');
-console.log('Awaiting WebSocket connections on ws://127.0.0.1:'+WEBSOCKET_PORT+'/');
+console.log("Listening on http://localhost:" + STREAM_PORT);

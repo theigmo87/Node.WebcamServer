@@ -18,6 +18,7 @@
   "homepage": "https://github.com/theigmo87/Node.WebcamServer#readme",
   "dependencies": {
     "express": "^4.13.4",
+    "socket.io": "^1.4.5",
     "ws": "^1.0.1"
   }
 }
