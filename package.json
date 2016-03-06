@@ -1,0 +1,23 @@
+{
+  "name": "node.webcamserver",
+  "version": "0.1.0",
+  "description": "Accepts webcam stream and delivers to clients",
+  "main": "app/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theigmo87/Node.WebcamServer.git"
+  },
+  "author": "Jimmy G",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/theigmo87/Node.WebcamServer/issues"
+  },
+  "homepage": "https://github.com/theigmo87/Node.WebcamServer#readme",
+  "dependencies": {
+    "express": "^4.13.4",
+    "ws": "^1.0.1"
+  }
+}

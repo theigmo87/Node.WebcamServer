@@ -1,0 +1,11 @@
+#logs
+logs
+
+#settings
+.vscode
+
+#distrobution directories
+#dist
+
+#dependency directories
+node_modules
