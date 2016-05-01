@@ -1,36 +1,56 @@
-var io = require('socket.io').listen(8082, {log:false});
-io.sockets.on('connection', function (socket) 
-{
+//var io = require('socket.io').listen(8082, {log:false});
+//io.sockets.on('connection', function (socket)
+//{
     //console.log(socket);
-    console.log('websocket connection');
+    //console.log('websocket connection');
     /*
-    socket.on('VIDEO_STREAM_DATA', function (req) 
+    socket.on('VIDEO_STREAM_DATA', function (req)
     {
         console.log(req);
         //socket.emit('VS', data);
     });
     */
-});
+//});
 
 
 /*
 var webmReceiver = require('socket.io').listen(8082, {log:true});
 io.sockets.on('connection', function(socket){
-   console.log(socket); 
+   console.log(socket);
 });
 console.log("Listening on localhost:8082");
 */
 
-var STREAM_SECRET = "stream",
+var STREAM_SECRET = "stream01",
     STREAM_PORT = 8084;
 
 var streamServer = require('http').createServer( function(request, response) {
     console.log(request);
-    request.on('data', function(data){
-        io.sockets.emit('VS', data);
+
+    //request.on('data', function(data){
         //io.sockets.emit('VS', data);
-    });
-   
+        //io.sockets.emit('VS', data);
+    //});
+
+    var params = request.url.substr(1).split('/');
+  	if( params[0] == STREAM_SECRET ) {
+  		console.log(
+  			'Stream Connected: ' + request.socket.remoteAddress +
+  			':' + request.socket.remotePort;
+  		);
+  		request.on('data', function(data){
+              console.log(data);
+  			//socketServer.broadcast(data, {binary:true});
+  		});
+  	}
+  	else {
+  		console.log(
+  			'Failed Stream Connection: '+ request.socket.remoteAddress +
+  			request.socket.remotePort + ' - wrong secret.'
+  		);
+  		response.end();
+  	}
+
     /*
 	var params = request.url.substr(1).split('/');
 	if( params[0] == STREAM_SECRET ) {
